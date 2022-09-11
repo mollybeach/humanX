@@ -1,0 +1,107 @@
+---
+title: "piter"
+author: "Molly Beach"
+date: "1/28/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE,message=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Calling Lab2.R
+source('Lab2.R')
+```
+For more information about the corresponding scripts please refer to this [link](https://github.com/jinc132/GEOG458_Group_Lab2/blob/master/Lab2.R)
+
+## Introduction
+
+This report focuses on the geographies of industry and employment at the tract level  in _Bellevue, WA_, using data from the United States Census Bureau. Specifically, the 2021 main origin destination (OD) matrix, work area characteristic (WAC) data, and the residence area characteristic (RAC) data for the state of Washington were obtained from the US Census' Longitudinal Employer-Household Dynamics. These data tell us the employment relationship between *"home"* and *"work"* census tracts, jobs of the people that live in a particular block, and jobs of the people that work in a particular block respectively. The data was obtained from an authoritative governmental source, though despite this, there are some general problems with Census data.
+
+
+## Problems with Using Census Data
+
+Some of the issues associated with Census Data include race categorization, microdata and statistical confidentiality, as well as interpolated values. Currently, the questions that the census asks about ethnic and racial origins follow a two step format; the first asks about race and the second about Hispanic origins. This is problematic because people who report Hispanic origins are assumed to be only Hispanic by the Census regardless of the person's report on race. Much of the confusion surrounding identity has to do with the Census' conceptualization of race and ethnicity and the limited choices that are presented [(McKenney & Bennett 1994; Alba 2018)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1402238/). Microdata are records of information on individual respondents. Since the Census Bureau releases a fair amount of data to the public, including microdata, this raises issues of privacy, confidentiality, and protection against disclosure of individuals [(Hawala 2003; McCaa & Ruggles 2002)](http://users.pop.umn.edu/~rmccaa/census_microdata_revolution.pdf)<br>
+Sources:<br>
+https://www.census.gov/srd/sdc/microdataprotection.pdf<br>
+Issues with Interpolated values<br>
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4624462/ 
+
+## Why Bellevue?
+ 
+Seattle was almost a sought out place to map out data. However, we thought it was too common and obvious a choice. Seattle is flourishing in the technology industry with companies like Google, Amazon, TMobile, and Microsoft. With the large amount of jobs in Seattle, we thought it was too broad to map as there is a population of 720,000. Choosing Bellevue seemed best and most forgiving with the RStudio program as the population is 140,000. Bellevue is also known to be an area filled with high income people - so we were curious how that factors in the job industry. [(Source)](https://www.google.com/search?ei=pQJcXMPiHdOfjgS0nqnIBA&q=popular+city+washington+state&oq=popular+city+washington+state&gs_l=psy-ab.3..0i8i13i30.16394.20554..20679...0.0..0.574.5920.0j15j8j1j0j2......0....1..gws-wiz.......0i71j0j0i67j0i131i67j0i131j0i22i30j33i22i29i30.xPe940r9_qs)
+
+## Visualizations
+
+In our first map here, we take cumulative total jobs, denoted by the S000 column and display it's distrubtion through 
+all of the given worktracts. Average job availability through all givenworktracts seems to be between the 20-50 value range, although you have extreme outliers popping out between each quantile range. These extreme outlier values are to be expected but not heavily reflected upon, as there are only a dozen standout extreme values in a dataset of 223,560 objects. There seems no forming pattern or trend to high job availability or low job availability in any spread of the worktracts, and distribution throughout is quite standardized, albiet segemented. 
+
+```{r first, echo=FALSE}
+library(tidyverse)
+tot_jobs <- od[c("w_geocode", "S000")]
+tot_jobs_10 <- head(arrange(tot_jobs, desc(tot_jobs$S000)),10)
+barplot(od$S000,
+names.arg = od$w_geocode,
+main = "Total Jobs By WAC Tracts",
+xlab = "WAC Codes",
+ylab = "Number of Jobs",
+col = "darkred")
+```
+
+
+In our second portion, I decided to plot two overlapping maps of the same metric : salary earning bracket. The first histogram
+graphs job availability with salaries less than 1250/m with ones with salaries between 1250/m & 3333/m, with orange denoting the lower salary braket, and the yellow denoting the mid-tier salary bracket. It actually came to a suprise to me that there was such low availability for jobs in the lower salary paying range, as you can see with the high frequency occupancy of the orange and yellow bars. It seems that the covered work tracts in general do not have that many jobs paying less than 1250/m seeing as the orange tapers off before it reaches even the 20 value mark, and the yellow dissapears before hitting even 40, and both are concentrated between the 0-10 mark, denoting very low job availability. 
+
+
+Our second graph plots the 1250/m - 3333/m salary bracket against the >3333/m salary bracket, with the former being in green and the latter in blue. We see the same distribution coming from the mid salary bracket, but with the introduction of the high salary bracket, we see a huge change in range of the distribution. Where in the previous graph, we rounded out the end of the range at around 40, the high salary bracket takes us all the way to around 180. Although, this is nothing statistically exciting, as the high salary bracket is still a falling left-skewed distribution, with much of it's concentration being on it's tail end. The thing to note is that the high salary bracket's tail end is the mid-bracket salary's falling end. And that might sound obvious, but again we are not measuring salary or paycheck, but job availability. And it seems that there are more jobs paying 3333/m or more than there are paying less in this given area. The high-salary bracket's highest concentration points happens to be the overall median job availabilty value, and it's own median job availability value is not low at all, bolstoering even higher frequency of larger sized job positions, hinting me to make the prediction that there are a larger amount of jobs paying 3333 or more a month, than there are paying less than that. 
+
+```{r second, echo=FALSE}
+hist(od$SE01, col=rgb(1,0,0,0.7), alpha=0.3, xlim=c(0,60), ylim=c(0,100), main="Number of Jobs Overlayed with SE01 & SE02", xlab="Number of Jobs")
+hist(od$SE02, col=rgb(1,1,0,0.4), alpha=0.7, add=T)
+box()
+hist(od$SE02, col=rgb(1,1,0,0.7), alpha=0.3, xlim=c(0,200), ylim=c(0,100), main="Number of Jobs Overlayed with SE02 & SE03", xlab="Number of Jobs")
+hist(od$SE03, col=rgb(0,1,1,0.4), alpha=0.7, add=T)
+box()
+```
+
+
+In the last graph, you see educational levels plotted through out the given work tracts and graphed along it's corresponding number
+of jobs value. Not suprisingly, you see very rare sighting of edu1 points plotted along the graph, denoting that there are not many jobs for workers with less than a high school degree. You see a few sightings of available jobs for high school degrees and associate ones, which is a reassuring aspect, but the overwhelming display of the map is colored in purple (edu4). We see overall flat distributions throughout the plot, with high spikes in certain areas, reminiscent of the first graph, which showed total job availability. It cannot be directly stated the reason for these high spikes as they are statistical outliers and operate as such extremes, but can be assumed that they are potential large cities with higher populations, explaning their large job pool size and high job-educational necessity. With that being said, the entire purple filled map likely denotes that the number of jobs for workers with a bachelor's degree or above is the most prominent and abundant. This is not to say that a worker with a bachelor's degree or above will have readily access to a job, but that more likely that the firms hiring, all create positions that neccessitate a bachelor's degree or above. This pairs well with the graph above, seeing that the given work tracts have larger amounts of available jobs the higher we go in salary pay, and all want workers with a educational level of bachelors or above. The pairing trend of high salary pay as well as large occupancy of higher educated workers means well for a growing and sustainable economy and workforce. 
+
+```{r third, echo=FALSE}
+wcodes <- wac$w_geocode
+edu1 <- wac$CD01
+edu2 <- wac$CD02
+edu3 <- wac$CD03
+edu4 <- wac$CD04
+edu_all <- data.frame(wcodes, edu1, edu2, edu3, edu4)
+require(tidyr)
+library(ggplot2)
+data_long <- gather(edu_all, variable, value, edu1:edu4, factor_key=TRUE, -wcodes)
+ggplot(data_long,aes(x=wcodes,y=value,fill=variable))+
+  geom_point(size=2,shape = 23)
+
+```
+
+```{r three, echo=FALSE}
+block_level_map
+
+tract_level_map
+```
+
+The majority of finance jobs in Bellevue are located and concentrated in the tracts by the northwest portion of the city. Part of this can be explained by downtown Bellevue being located within/near the tracts with the greatest concentration of finance jobs. Large businesses and corporations cluster in downtown, which likely mean more jobs in that area. Tracts with lower concentrations of finance jobs tend to be residential instead of business/industry.
+
+```{r four, echo=FALSE}
+map
+```
+
+Based on the Bellevue subsetted data, our team has decided to gear our attention toward a much smaller focus such as the downtown location of Bellevue. In effect, it has been brought to awareness that there are a variety of workers living in different vicinties of the work area. Despite being a specified few of the tracts within Bellevue, there are many more home tracts compared to the work tracts. This shows that workers travel from various areas and long distance to work or return home. Similarly, it shows a relationship between workers being sent in workers being sent out.
+
+```{r five, echo=FALSE}
+map2
+
+map3
+```
+
+```{r six, echo=FALSE}
+LQ_map
+```
